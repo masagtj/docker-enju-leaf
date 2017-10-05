@@ -1,0 +1,45 @@
+version: '2'
+services:
+  web:
+    image: masagtj/docker-enju-leaf:1.2.1
+    ports:
+      - "3000:3000"
+    environment:
+      # - RAILS_RELATIVE_URL_ROOT=/enju-leaf
+      - MAILER_DELIVERY_METHOD=
+      - MAILER_ADDRESS=""
+      - MAILER_PORT=587
+      - MAILER_DOMAIN=""
+      - MAILER_USERNAME=""
+      - MAILER_PASSWORD=""
+      - MAILER_AUTH=login
+      - MAILER_TLS=true
+      - MAILER_SENDER=""
+      - LDAP_HOST=
+      - LDAP_PORT=389
+      - LDAP_LDAPS=false
+      - LDAP_DOMAIN=""
+      - LDAP_BASEDN=""
+      - LDAP_BIND_USERNAME="sAMAccountName"
+      - LDAP_BIND_FULL_NAME="displayName"
+      - LDAP_BIND_MAIL="mail"
+      - TZ=Asia/Tokyo
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - "/opt/docker/enju/enju-leaf/db/migrate:/enju_leaf/bk/migrate:rw"
+      - "/opt/docker/enju/enju-leaf/log:/enju_leaf/log:rw"
+      - "/opt/docker/enju/enju-leaf/system:/enju_leaf/private/system:rw"
+  db:
+    image: postgres:9.6.1
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=enju_production
+    volumes:
+      - "/opt/docker/enju/postgresql/data:/var/lib/postgresql/data:rw"
+  redis:
+    image: "redis:latest"
+    volumes:
+      - "/opt/docker/enju/redis:/var/lib/redis:rw"

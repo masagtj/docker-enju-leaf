@@ -1,5 +1,4 @@
 # docker-enju-leaf
-===============
 
 Docker image for [Next-L Enju Leaf](https://github.com/next-l/enju_leaf). Next-L Enju Leaf is an integrated library system developed by [Project Next-L](http://www.next-l.jp/).
 
@@ -19,7 +18,7 @@ Docker image for [Next-L Enju Leaf](https://github.com/next-l/enju_leaf). Next-L
    * password: `adminpassword`
 
 
-## environment
+## Environment
 ### mail
 * ENJU_HOST=enju hostname <default=localhost:3000>
 * MAILER_DELIVERY_METHOD=:smtp
