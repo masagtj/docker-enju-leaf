@@ -1,0 +1,12 @@
+production:
+  ldap:
+    type: <%= ENV['LDAP_TYPE'] %>
+    host: <%= ENV['LDAP_HOST'] %>
+    port: <%= ENV['LDAP_PORT'] %>
+    domain: <%= ENV['LDAP_DOMAIN'] %>
+    ldaps: <%= ENV['LDAP_LDAPS'] %>
+    basedn: <%= ENV['LDAP_BASEDN'] %>
+    bind:
+      username: <%= ENV['LDAP_BIND_USERNAME'] %>
+      full_name: <%= ENV['LDAP_BIND_FULL_NAME'] %>
+      mail: <%= ENV['LDAP_BIND_MAIL'] %>
