@@ -1,11 +1,11 @@
 version: '2'
 services:
   web:
-    image: masagtj/docker-enju-leaf:1.2.1
+    image: masagtj/docker-enju-leaf:1.2.2
     ports:
       - "3000:3000"
     environment:
-      # - RAILS_RELATIVE_URL_ROOT=/enju-leaf
+      #- RAILS_RELATIVE_URL_ROOT=/enju-leaf
       - MAILER_DELIVERY_METHOD=
       - MAILER_ADDRESS=""
       - MAILER_PORT=587

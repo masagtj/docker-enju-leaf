@@ -41,13 +41,17 @@ waitingForDatabase() {
 
 isDbEmpty(){
   export PGPASSWORD="$DB_PASSWORD"
-  result=`psql -t -U $DB_USERNAME -d $DB_DATABASE -h $DB_HOST  << _EOF
+  result=$(psql -t -U $DB_USERNAME -d $DB_DATABASE -h $DB_HOST  << _EOF
     SELECT NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema'));
-_EOF`
+_EOF
+)
   unset PGPASSWORD
   test $result = "t"
   echo $?
 }
+
+DB_MIG_PATH="/enju_leaf/db/migrate"
+BK_MIG_PATH="/enju_leaf/bk/migrate"
 
 operateDBMigrations(){
   #初回起動時に利用したMigrationファイルを使用するため。
@@ -55,11 +59,11 @@ operateDBMigrations(){
   local MIGCOUNT=$(ls -1 /enju_leaf/bk/migrate | wc -l)
   if [ $MIGCOUNT -eq '0' ]; then
     echo "migrations not exist"
-    cp -r /enju_leaf/db/migrate/* /enju_leaf/bk/migrate/
+    cp -r $DB_MIG_PATH/* $BK_MIG_PATH/
   else
     echo "migrations exist"
-    rm /enju_leaf/db/migrate/*
-    cp -r /enju_leaf/bk/migrate/* /enju_leaf/db/migrate/
+    rm $DB_MIG_PATH/*
+    cp -r $BK_MIG_PATH/* $DB_MIG_PATH/
   fi
 }
 
@@ -132,11 +136,16 @@ bootstrapEnju-Leaf() {
 
   echo "Checking if database is empty..."
   IS_DB_EMPTY=$(isDbEmpty)
-  if [ $IS_DB_EMPTY = "0" ]; then
-    echo "Database is empty."
-  fi
 
   echo "Running database migration..."
+  rake railties:install:migrations
+
+  BK_MIG_NUMBER=$(ls "$BK_MIG_PATH" | wc -l)
+  DB_MIG_NUMBER=$(ls "$DB_MIG_PATH" | wc -l)
+  if [ $BK_MIG_NUMBER != $DB_MIG_NUMBER ]; then
+    cp -r /enju_leaf/db/migrate/* /enju_leaf/bk/migrate/
+  fi
+  
   rake db:migrate
 
   if [ $IS_DB_EMPTY = "0" ]; then
@@ -144,6 +153,7 @@ bootstrapEnju-Leaf() {
     rake enju_leaf:setup
     rake enju_circulation:setup
     rake enju_subject:setup
+    #rake assets:precompile
     rake db:seed
   fi
 
@@ -152,6 +162,7 @@ bootstrapEnju-Leaf() {
 
   echo "Upgrading database..."
   rake enju_leaf:upgrade
+  rake enju_leaf:load_asset_files RAILS_ENV=production
 
   if [ -z "$ENJU_SKIP_SOLR" ]; then
     echo "Re-indexing..."
@@ -166,7 +177,7 @@ bootstrapEnju-Leaf() {
 }
 
 if [ "$1" = "bundle" ]; then
-bootstrappingEnvironment
+  bootstrappingEnvironment
 fi
 
 exec "$@"
